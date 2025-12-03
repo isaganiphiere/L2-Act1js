@@ -1,0 +1,30 @@
+<<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<h2>?? Order Management System</h2>
+
+<div id="orderForm">
+    <input type="text" id="customer" placeholder="Customer Name">
+    <input type="text" id="item" placeholder="Item Name">
+    <input type="number" id="qty" placeholder="Qty" min="1">
+    <input type="number" id="price" placeholder="Price" min="0">
+    <button id="addOrder">Add Order</button>
+</div>
+
+<h3>Orders</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="orderTable"></tbody>
+</table>
+
+

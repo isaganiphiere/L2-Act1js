@@ -1,0 +1,118 @@
+
+
+
+const safeStorage = (() => {
+    try {
+        const testKey = "__test__";
+        localStorage.setItem(testKey, "1");
+        localStorage.removeItem(testKey);
+        return localStorage; // If allowed, use real localStorage
+    } catch (e) {
+        console.warn("localStorage blocked — using fallback memory storage.");
+        const memoryStore = {};
+        return {
+            getItem: key => memoryStore[key] || null,
+            setItem: (key, value) => memoryStore[key] = value,
+            removeItem: key => delete memoryStore[key]
+        };
+    }
+})();
+
+
+// ORDER MANAGEMENT SYSTEM
+
+
+let orders = [];
+
+// Load saved orders
+if (safeStorage.getItem("orders")) {
+    orders = JSON.parse(safeStorage.getItem("orders"));
+}
+
+// Save orders
+function saveOrders() {
+    safeStorage.setItem("orders", JSON.stringify(orders));
+}
+
+// Render order table
+function renderOrders() {
+    let rows = "";
+
+    orders.forEach((o, index) => {
+        rows += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${o.customer}</td>
+                <td>${o.item}</td>
+                <td>${o.qty}</td>
+                <td>$${o.price.toFixed(2)}</td>
+                <td>$${(o.qty * o.price).toFixed(2)}</td>
+                <td>
+                    <button class="editOrder" data-id="${index}">Edit</button>
+                    <button class="deleteOrder" data-id="${index}">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    $("#orderTable").html(rows);
+}
+
+renderOrders();
+
+
+// ADD ORDER
+
+$("#addOrder").on("click", function () {
+    let customer = $("#customer").val().trim();
+    let item = $("#item").val().trim();
+    let qty = parseInt($("#qty").val());
+    let price = parseFloat($("#price").val());
+
+    if (!customer || !item || !qty || !price) {
+        alert("All fields are required.");
+        return;
+    }
+
+    orders.push({ customer, item, qty, price });
+    saveOrders();
+    renderOrders();
+
+    // clear inputs
+    $("#customer, #item, #qty, #price").val('');
+});
+
+
+// DELETE ORDER
+$(document).on("click", ".deleteOrder", function () {
+    let id = $(this).data("id");
+
+    if (confirm("Delete this order?")) {
+        orders.splice(id, 1);
+        saveOrders();
+        renderOrders();
+    }
+});
+
+
+// EDIT ORDER
+
+$(document).on("click", ".editOrder", function () {
+    let id = $(this).data("id");
+    let order = orders[id];
+
+    let customer = prompt("Customer:", order.customer);
+    let item = prompt("Item:", order.item);
+    let qty = parseInt(prompt("Qty:", order.qty));
+    let price = parseFloat(prompt("Price:", order.price));
+
+    if (!customer || !item || !qty || !price) {
+        alert("Invalid input.");
+        return;
+    }
+
+    orders[id] = { customer, item, qty, price };
+    saveOrders();
+    renderOrders();
+});
+
